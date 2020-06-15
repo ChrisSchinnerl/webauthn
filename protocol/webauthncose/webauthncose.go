@@ -8,11 +8,13 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/asn1"
+	"encoding/hex"
 	"encoding/pem"
 	"fmt"
-	"golang.org/x/crypto/ed25519"
 	"hash"
 	"math/big"
+
+	"golang.org/x/crypto/ed25519"
 
 	"github.com/ugorji/go/codec"
 )
@@ -162,6 +164,7 @@ func ParsePublicKey(keyBytes []byte) (interface{}, error) {
 	switch COSEKeyType(pk.KeyType) {
 	case OctetKey:
 		var o OKPPublicKeyData
+		fmt.Println("OctedKey", OctetKey)
 		codec.NewDecoder(bytes.NewReader(keyBytes), cborHandler).Decode(&o)
 		o.PublicKeyData = pk
 		return o, nil
@@ -169,11 +172,14 @@ func ParsePublicKey(keyBytes []byte) (interface{}, error) {
 		var e EC2PublicKeyData
 		codec.NewDecoder(bytes.NewReader(keyBytes), cborHandler).Decode(&e)
 		e.PublicKeyData = pk
+		fmt.Println("keybytes", hex.EncodeToString(keyBytes))
+		fmt.Println("EllipyitKey", EllipticKey, e.KeyType, e.Algorithm, e.Curve, e.XCoord, e.YCoord)
 		return e, nil
 	case RSAKey:
 		var r RSAPublicKeyData
 		codec.NewDecoder(bytes.NewReader(keyBytes), cborHandler).Decode(&r)
 		r.PublicKeyData = pk
+		fmt.Println("RSAKey", RSAKey)
 		return r, nil
 	default:
 		return nil, ErrUnsupportedKey
